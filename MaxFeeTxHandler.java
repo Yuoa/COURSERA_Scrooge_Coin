@@ -31,7 +31,7 @@ public class MaxFeeTxHandler implements Comparator<Transaction> {
                 return false;
 
             Transaction.Output prevO = pool.getTxOutput(targetUTXO);
-            if (!prevO.address.verifySignature(tx.getRawDataToSign(index++), i.signature))
+            if (!Crypto.verifySignature(prevO.address, tx.getRawDataToSign(index++), i.signature))
                 return false;
 
             usedUTXOs.add(targetUTXO);
