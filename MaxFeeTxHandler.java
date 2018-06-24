@@ -31,7 +31,7 @@ public class MaxFeeTxHandler implements Comparator<Transaction> {
                 return false;
 
             Transaction.Output prevO = pool.getTxOutput(targetUTXO);
-            if (!Crypto.verifySignature(prevO.address, tx.getRawDataToSign(index++), i.signature))
+            if (!prevO.address.verifySignature(tx.getRawDataToSign(index++), i.signature))
                 return false;
 
             usedUTXOs.add(targetUTXO);
@@ -68,12 +68,12 @@ public class MaxFeeTxHandler implements Comparator<Transaction> {
 
         // sorting {@code possibleTxs} to find a set of txs whose fee is maximized.
         //Arrays.sort(possibleTxs, new MaxFeeTxHandler(pool));
-        TreeSet<Transaction> possibleTxsSet = new TreeSet<>((a, b) -> {
+        TreeSet<Transaction> possibleTxsSet = new TreeSet<>((Transaction a, Transaction b) -> {
 
             double aFee = getTotalTxInputValue(a) - getTotalTxOutputValue(a);
             double bFee = getTotalTxInputValue(b) - getTotalTxOutputValue(b);
 
-            return Double.valueOf(bFee).compareTo(aFee);
+            return bFee - aFee > 0 ? +1 : bFee == aFee ? 0 : -1;
 
         });//(Arrays.asList(possibleTxs));
         Collections.addAll(possibleTxsSet, possibleTxs);
@@ -120,7 +120,7 @@ public class MaxFeeTxHandler implements Comparator<Transaction> {
         double total = 0;
 
         for (Transaction.Output o : tx.getOutputs())
-            if (isValidTx(tx))
+            //if (isValidTx(tx))
                 total += o.value;
 
         return total;
