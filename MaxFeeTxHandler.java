@@ -73,7 +73,7 @@ public class MaxFeeTxHandler {
 
             private UTXOPool pool;
 
-            public TxFeeMaximizer(UTXOPool uxtoPool) {
+            public TxFeeMaximizer(UTXOPool utxoPool) {
                 pool = utxoPool;
             }
 
