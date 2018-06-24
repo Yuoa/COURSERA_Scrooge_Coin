@@ -71,6 +71,12 @@ public class MaxFeeTxHandler {
         // for easy sorting, I implemented transaction comparator.
         class TxFeeMaximizer implements Comparator<Transaction> {
 
+            private UTXOPool pool;
+
+            public TxFeeMaximizer(UTXOPool uxtoPool) {
+                pool = utxoPool;
+            }
+
             private double getTotalTxInputValue(Transaction tx) {
 
                 double total = 0;
