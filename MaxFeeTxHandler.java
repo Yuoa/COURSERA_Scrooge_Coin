@@ -76,7 +76,7 @@ public class MaxFeeTxHandler {
                 double total = 0;
 
                 for (Transaction.Input i : tx.getInputs())
-                    total += pool.getTxOutput(i.outputIndex).value;
+                    total += pool.getTxOutput(new UTXO(tx.getHash(), i.outputIndex)).value;
 
                 return total;
 
@@ -99,7 +99,7 @@ public class MaxFeeTxHandler {
                 double aFee = getTotalTxInputValue(a) - getTotalTxOutputValue(a);
                 double bFee = getTotalTxInputValue(b) - getTotalTxOutputValue(b);
 
-                return bFee - aFee;
+                return bFee - aFee > 0 ? +1 : bFee == aFee ? 0 : -1;
 
             }
 
