@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Comparator;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 public class MaxFeeTxHandler implements Comparator<Transaction> {
 
@@ -65,10 +66,10 @@ public class MaxFeeTxHandler implements Comparator<Transaction> {
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
 
         // sorting {@code possibleTxs} to find a set of txs whose fee is maximized.
-        Arrays.sort(possibleTxs, new MaxFeeTxHandler(pool));
+        Arrays.sort(possibleTxs, this);
 
         // from below, the code is same with TxHandler class
-        HashSet<Transaction> acceptedTxs = new HashSet<>();
+        LinkedHashSet<Transaction> acceptedTxs = new LinkedHashSet<>();
 
         for (Transaction tx : possibleTxs)
             if (isValidTx(tx)) {
