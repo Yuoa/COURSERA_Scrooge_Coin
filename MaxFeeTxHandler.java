@@ -82,7 +82,7 @@ public class MaxFeeTxHandler {
                 double total = 0;
 
                 for (Transaction.Input i : tx.getInputs())
-                    total += pool.getTxOutput(new UTXO(tx.getHash(), i.outputIndex)).value;
+                    total += pool.getTxOutput(new UTXO(i.prevTxHash, i.outputIndex)).value;
 
                 return total;
 
