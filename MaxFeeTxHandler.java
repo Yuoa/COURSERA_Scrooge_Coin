@@ -112,7 +112,7 @@ public class MaxFeeTxHandler {
         }
 
         // sorting {@code possibleTxs} to find a set of txs whose fee is maximized.
-        Arrays.sort(possibleTxs, new TxFeeMaximizer());
+        Arrays.sort(possibleTxs, new TxFeeMaximizer(pool));
 
         // from below, the code is same with TxHandler class
         ArrayList<Transaction> acceptedTxs = new ArrayList<>();
