@@ -2,8 +2,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Comparator;
 import java.util.Arrays;
+import java.util.Set;
 
-public class MaxFeeTxHandler {
+public class MaxFeeTxHandler implements Comparator<Transaction> {
 
     private UTXOPool pool;
 
@@ -61,6 +62,45 @@ public class MaxFeeTxHandler {
 
     }
 
+    private double getTotalTxInputValue(Transaction tx) {
+
+        double total = 0;
+
+        for (Transaction.Input i : tx.getInputs()) {
+
+            UTXO targetUTXO = new UTXO(i.prevTxHash, i.outputIndex);
+
+            if (pool.contains(targetUTXO) && isValidTx(tx))
+                total += pool.getTxOutput(targetUTXO).value;
+
+        }
+
+        return total;
+
+    }
+
+    private double getTotalTxOutputValue(Transaction tx) {
+
+        double total = 0;
+
+        for (Transaction.Output o : tx.getOutputs())
+            //if (isValidTx(tx))
+                total += o.value;
+
+        return total;
+
+    }
+
+    @Override
+    public int compare(Transaction a, Transaction b) {
+
+        double aFee = getTotalTxInputValue(a) - getTotalTxOutputValue(a);
+        double bFee = getTotalTxInputValue(b) - getTotalTxOutputValue(b);
+
+        return bFee - aFee > 0 ? +1 : bFee == aFee ? 0 : -1;
+
+    }
+
     /**
      * Same with TxHandler class, but finds a set of txs whose fee is maximized.
      * But how? The only possible way is "same, but different fee" txs.
@@ -68,54 +108,11 @@ public class MaxFeeTxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
 
-        // for easy sorting, I implemented transaction comparator.
-        class TxFeeMaximizer implements Comparator<Transaction> {
-
-            private UTXOPool pool;
-
-            public TxFeeMaximizer(UTXOPool utxoPool) {
-                pool = utxoPool;
-            }
-
-            private double getTotalTxInputValue(Transaction tx) {
-
-                double total = 0;
-
-                for (Transaction.Input i : tx.getInputs())
-                    total += pool.getTxOutput(new UTXO(i.prevTxHash, i.outputIndex)).value;
-
-                return total;
-
-            }
-
-            private double getTotalTxOutputValue(Transaction tx) {
-
-                double total = 0;
-
-                for (Transaction.Output o : tx.getOutputs())
-                    total += o.value;
-
-                return total;
-
-            }
-
-            @Override
-            public int compare(Transaction a, Transaction b) {
-
-                double aFee = getTotalTxInputValue(a) - getTotalTxOutputValue(a);
-                double bFee = getTotalTxInputValue(b) - getTotalTxOutputValue(b);
-
-                return bFee - aFee > 0 ? +1 : bFee == aFee ? 0 : -1;
-
-            }
-
-        }
-
         // sorting {@code possibleTxs} to find a set of txs whose fee is maximized.
-        Arrays.sort(possibleTxs, new TxFeeMaximizer(pool));
+        Arrays.sort(possibleTxs, new MaxFeeTxHandler(pool));
 
         // from below, the code is same with TxHandler class
-        ArrayList<Transaction> acceptedTxs = new ArrayList<>();
+        Set<Transaction> acceptedTxs = new HashSet<>();
 
         for (Transaction tx : possibleTxs)
             if (isValidTx(tx)) {

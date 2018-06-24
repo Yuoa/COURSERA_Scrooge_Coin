@@ -80,7 +80,7 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
 
-        ArrayList<Transaction> acceptedTxs = new ArrayList<>();
+        HashSet<Transaction> acceptedTxs = new HashSet<>();
 
         // checking each transaction for correctness
         for (Transaction tx : possibleTxs)
