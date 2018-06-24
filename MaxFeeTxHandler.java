@@ -2,8 +2,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Comparator;
 import java.util.Arrays;
-import java.util.TreeSet;
-import java.util.Collections;
 
 public class MaxFeeTxHandler implements Comparator<Transaction> {
 
@@ -67,21 +65,12 @@ public class MaxFeeTxHandler implements Comparator<Transaction> {
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
 
         // sorting {@code possibleTxs} to find a set of txs whose fee is maximized.
-        //Arrays.sort(possibleTxs, new MaxFeeTxHandler(pool));
-        TreeSet<Transaction> possibleTxsSet = new TreeSet<>((Transaction a, Transaction b) -> {
-
-            double aFee = getTotalTxInputValue(a) - getTotalTxOutputValue(a);
-            double bFee = getTotalTxInputValue(b) - getTotalTxOutputValue(b);
-
-            return bFee - aFee > 0 ? +1 : bFee == aFee ? 0 : -1;
-
-        });//(Arrays.asList(possibleTxs));
-        Collections.addAll(possibleTxsSet, possibleTxs);
+        Arrays.sort(possibleTxs, new MaxFeeTxHandler(pool));
 
         // from below, the code is same with TxHandler class
         HashSet<Transaction> acceptedTxs = new HashSet<>();
 
-        for (Transaction tx : possibleTxsSet)
+        for (Transaction tx : possibleTxs)
             if (isValidTx(tx)) {
 
                 acceptedTxs.add(tx);
@@ -120,8 +109,7 @@ public class MaxFeeTxHandler implements Comparator<Transaction> {
         double total = 0;
 
         for (Transaction.Output o : tx.getOutputs())
-            //if (isValidTx(tx))
-                total += o.value;
+            total += o.value;
 
         return total;
 
